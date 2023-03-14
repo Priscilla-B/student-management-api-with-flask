@@ -1,4 +1,4 @@
-from utils import db
+from api.utils import db
 from sqlalchemy.sql import func
 
 
@@ -12,8 +12,12 @@ class User(db.Model):
     is_staff = db.Column(db.Boolean(), default=False)
     is_active = db.Column(db.Boolean(), default=False)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
-    student = db.relationship('Student', backref='user', uselist=False)
+    # student = db.relationship('Student', backref='user', uselist=False)
     # uselist=False makes relationship One to One
     
     def __repr__(self):
         return f'{self.username}'
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
