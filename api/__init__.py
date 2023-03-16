@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_restx import Api
 
 from .auth.views import auth_namespace
@@ -29,6 +30,8 @@ def create_app(config=config_dict['dev']):
     api.add_namespace(grading_namespace, path='')
     api.add_namespace(students_namespace, path='/student')
     api.add_namespace(teachers_namespace, path='/teacher')
+
+    jwt = JWTManager(app)
 
     with app.app_context():
         db.create_all()
