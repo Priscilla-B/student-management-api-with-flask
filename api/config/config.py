@@ -1,5 +1,6 @@
 import os
 from decouple import config
+from datetime import timedelta
 
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -10,7 +11,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #  prevent sql alchemy from setting up a session to 
     # track inserts, updates, and deletes for models
-    pass
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=30)
+    JWT_SECRET_KEY = config('JWT_SECRET_KEY')
 
 
 class DevConfig(Config):
