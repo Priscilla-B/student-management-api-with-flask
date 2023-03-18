@@ -1,13 +1,14 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restx import Api
+from flask_authorize import Authorize
 
 from .auth.views import auth_namespace
 from .courses.views import courses_namespace
 from .grading.views import grading_namespace
 from .students.views import student_namespace
 from .teachers.views import teachers_namespace
-from .auth.models import User
+from .auth.models import User, Role
 
 from .config.config import config_dict
 from .utils import db, migrate
@@ -32,6 +33,8 @@ def create_app(config=config_dict['dev']):
     api.add_namespace(teachers_namespace, path='/teacher')
 
     jwt = JWTManager(app)
+
+    authorize = Authorize(app)
 
     with app.app_context():
         db.create_all()
