@@ -33,6 +33,26 @@ login_serializer = auth_namespace.model(
     }
 )
 
+
+get_user_serializer = auth_namespace.model(
+    'User', {
+        'id': fields.Integer(),
+        'first_name': fields.String(required=True, description='first name of user'),
+        'last_name': fields.String(required=True, description='last name of user'),
+        'username': fields.String(required=True, description='public display name of user'),
+        'email': fields.String(required=True, description='user email address'),
+    }
+)
+
+
+group_serializer = auth_namespace.model(
+    'Group', {
+        'id': fields.Integer(),
+        'name': fields.String(required=True, description='name of user group'),
+    }
+)
+
+
 @auth_namespace.route('/register')
 class Register(Resource):
 
@@ -58,9 +78,7 @@ class Register(Resource):
         # that an object has been created
         return new_user, HTTPStatus.CREATED
         
-
-    def get(self):
-        return {'message':'hello auth!'}
+    
     
 
 @auth_namespace.route('/login')
@@ -83,6 +101,29 @@ class Login(Resource):
             }
 
             return response, HTTPStatus.OK
+
+@auth_namespace.route('/users')
+class GetUsers(Resource):
+    @jwt_required()
+    @auth_namespace.marshal_with(get_user_serializer)
+    def get(self):
+
+        users = User.query.all()
+
+        return users, HTTPStatus.OK
+    
+
+@auth_namespace.route('/users/user/<int:pk>')
+class GetUpdateDeleteUser(Resource):
+    @jwt_required()
+    @auth_namespace.marshal_with(get_user_serializer)
+    def get(self,pk):
+
+        user = User.query.filter_by(id=pk).first_or_404()
+
+        return user, HTTPStatus.OK
+
+
 
 
 @auth_namespace.route('/refresh')
