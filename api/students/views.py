@@ -2,6 +2,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
+from api.auth.models import User, Role
 from .models import Student
 
 student_namespace = Namespace(
@@ -76,7 +77,15 @@ class StudentGetCreate(Resource):
 
         )
 
+        try:
+            role = Role.query.get(name='student').first()
+        except:
+            role = Role(name='student')
+            role.save()
+        
+        new_student.user.role = [role]
         new_student.save()
+
         return new_student, HTTPStatus.CREATED
 
 
