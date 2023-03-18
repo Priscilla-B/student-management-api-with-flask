@@ -1,11 +1,11 @@
-from http import HTTPStatus
 from flask import request
 from flask_jwt_extended import (create_access_token, create_refresh_token, 
                                 jwt_required, get_jwt_identity)
 from flask_restx import Namespace, Resource, fields
+from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .models import User
+from .models import User, Role
 
 auth_namespace = Namespace(
     'auth',
@@ -20,7 +20,7 @@ register_serializer = auth_namespace.model(
         'username': fields.String(required=True, description='public display name of user'),
         'email': fields.String(required=True, description='user email address'),
         'password': fields.String(required=True, 
-                                  description='hash value of user password')
+                                  description='hash value of user password'),                    
     }
 )
 
@@ -41,12 +41,14 @@ get_user_serializer = auth_namespace.model(
         'last_name': fields.String(required=True, description='last name of user'),
         'username': fields.String(required=True, description='public display name of user'),
         'email': fields.String(required=True, description='user email address'),
+        'role': fields.String(required=True, 
+                                  description='hash value of user password') 
     }
 )
 
 
-group_serializer = auth_namespace.model(
-    'Group', {
+role_serializer = auth_namespace.model(
+    'Role', {
         'id': fields.Integer(),
         'name': fields.String(required=True, description='name of user group'),
     }
@@ -124,6 +126,42 @@ class GetUpdateDeleteUser(Resource):
         return user, HTTPStatus.OK
 
 
+
+@auth_namespace.route('/roles/')
+class CreateGetRoles(Resource):
+
+    @jwt_required()
+    @auth_namespace.expect(role_serializer)
+    @auth_namespace.marshal_with(role_serializer)
+
+    def post(self):
+        data = request.get_json()
+
+        new_role = Role(
+            name = data.get('name'),
+        )
+
+        new_role.save()
+        
+    @jwt_required()
+    @auth_namespace.marshal_with(role_serializer)
+    def get(self):
+
+        roles = Role.query.all()
+
+        return roles, HTTPStatus.OK
+    
+
+@auth_namespace.route('/groups/group/<int:pk>')
+class GetUpdateDeleteRole(Resource):
+    @jwt_required()
+    @auth_namespace.marshal_with(role_serializer)
+    def get(self,pk):
+
+        role = Role.query.filter_by(id=pk).first_or_404()
+
+        return role, HTTPStatus.OK
+    
 
 
 @auth_namespace.route('/refresh')
