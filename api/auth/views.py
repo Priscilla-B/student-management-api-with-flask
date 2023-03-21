@@ -6,6 +6,7 @@ from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .models import User, Role
+from .mixins import UserCreationMixin
 
 auth_namespace = Namespace(
     'auth',
@@ -56,7 +57,7 @@ role_serializer = auth_namespace.model(
 
 
 @auth_namespace.route('/register')
-class Register(Resource):
+class Register(Resource, UserCreationMixin):
 
     @auth_namespace.expect(register_serializer)
     @auth_namespace.marshal_with(register_serializer)
@@ -66,15 +67,8 @@ class Register(Resource):
         """
         data = request.get_json()
 
-        new_user = User(
-            first_name = data.get('first_name'),
-            last_name = data.get('last_name'),
-            username = data.get('username'),
-            email = data.get('email'),
-            password = generate_password_hash(data.get('password'))
-        )
-
-        new_user.save()
+        new_user = self.create_user(data)
+       
 
         # HTTPStatus.CREATED returns code 201 indicating 
         # that an object has been created
@@ -121,7 +115,7 @@ class GetUpdateDeleteUser(Resource):
     @auth_namespace.marshal_with(get_user_serializer)
     def get(self,pk):
 
-        user = User.query.filter_by(id=pk).first_or_404()
+        user = User.get_by_id(pk)
 
         return user, HTTPStatus.OK
 
