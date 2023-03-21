@@ -6,13 +6,14 @@ from api.auth.models import User, Role
 from api.auth.mixins import UserCreationMixin
 from api.utils import db
 from .models import Student
+from .mixins import StudentResponseMixin
 
 student_namespace = Namespace(
     'students',
     description='a namespace for student logic')
 
 
-get_student_serializer = student_namespace.model(
+student_serializer = student_namespace.model(
     'Student', 
         {
         'user_id':fields.Integer(
@@ -88,11 +89,48 @@ class StudentGetCreate(
 
 
 @student_namespace.route('/student/<student_id>')
-class GetUpdateDeleteStudent(Resource):
+class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
 
     @jwt_required()
-    @student_namespace.marshal_with(get_student_serializer)
+    @student_namespace.marshal_with(student_serializer)
     def get(self, student_id):
-        student = Student.query.filter_by(student_id=student_id).first_or_404()
+        student = Student.get_by_id(student_id)
+        
+        response_data = self.get_response(student)
+        return response_data, HTTPStatus.OK
+    
+    @jwt_required()
+    @student_namespace.expect(student_serializer)
+    @student_namespace.marshal_with(student_serializer)
+    def put(self, student_id):
 
-        return student, HTTPStatus.OK
+        student = Student.get_by_id(student_id)
+        user = student.user
+        data = student_namespace.payload
+        student_fields = [c.name for c in Student.__table__.columns]
+        user_fields = [c.name for c in User.__table__.columns]
+
+        for key, value in data.items():
+            if key in user_fields:
+                user[key] = value
+    
+            elif key in student_fields:
+                student[key] = value
+            
+            else:
+                return {"msg":f"Could not update student with key {key}"}, HTTPStatus.BAD_REQUEST
+        
+        db.session.commit()
+        
+    
+        return self.get_response(student), HTTPStatus.OK
+    
+    @jwt_required()
+    def delete(self, student_id):
+        student = Student.get_by_id(student_id)
+        user = student.user
+
+        user.delete()
+
+        student.delete()
+        return {"message":f"Student with id {student_id} has been deleted"}, HTTPStatus.OK
