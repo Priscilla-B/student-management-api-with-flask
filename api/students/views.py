@@ -3,6 +3,8 @@ from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
 from api.auth.models import User, Role
+from api.auth.mixins import UserCreationMixin
+from api.utils import db
 from .models import Student
 
 student_namespace = Namespace(
@@ -71,6 +73,10 @@ class StudentGetCreate(Resource):
         """
 
         data = student_namespace.payload
+        
+        role_name = 'student'
+        new_user = self.create_user(data, role_name).as_dict()
+
         new_student = Student(
             user_id = data['user_id'],
             student_id = data['student_id']
