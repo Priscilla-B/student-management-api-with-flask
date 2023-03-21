@@ -31,6 +31,10 @@ get_student_serializer = student_namespace.model(
             description='student last name',
             required = True
         ),
+        'username': fields.String(
+            description='username of student in app',
+            required = True
+        ),
         'email': fields.String(
             description='student email',
             required = True
