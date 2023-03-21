@@ -42,19 +42,6 @@ get_student_serializer = student_namespace.model(
         }
 )
 
-create_student_serializer = student_namespace.model(
-    'Student', 
-        {
-        'user_id':fields.Integer(
-            description='ID of related user',
-            required = True
-        ),
-        'student_id':fields.String(
-            description='custom created student ID',
-            required = True
-        )
-        }
-)
 
 @student_namespace.route('/students')
 class StudentGetCreate(Resource):
