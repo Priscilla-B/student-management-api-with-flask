@@ -74,21 +74,17 @@ class StudentGetCreate(
         new_user = self.create_user(data, role_name).as_dict()
 
         new_student = Student(
-            user_id = data['user_id'],
+            user_id = new_user['id'],
             student_id = data['student_id']
 
         )
-
-        try:
-            role = Role.query.get(name='student').first()
-        except:
-            role = Role(name='student')
-            role.save()
         
-        new_student.user.role = [role]
         new_student.save()
 
-        return new_student, HTTPStatus.CREATED
+        response_data = self.get_response(new_student)
+       
+
+        return response_data, HTTPStatus.CREATED
 
 
 @student_namespace.route('/student/<student_id>')
