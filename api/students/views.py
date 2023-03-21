@@ -44,9 +44,10 @@ get_student_serializer = student_namespace.model(
 
 
 @student_namespace.route('/students')
-class StudentGetCreate(Resource):
+class StudentGetCreate(
+    Resource, UserCreationMixin, StudentResponseMixin):
 
-    @student_namespace.marshal_with(get_student_serializer)
+    @student_namespace.marshal_with(student_serializer)
     @jwt_required()
     def get(self):
         """
@@ -54,10 +55,14 @@ class StudentGetCreate(Resource):
         """
 
         students = Student.query.all()
-        return students, HTTPStatus.OK
+        response_data = []
+        for student in students:
+            response_data.append(self.get_response(student))
     
-    @student_namespace.expect(create_student_serializer)
-    @student_namespace.marshal_with(create_student_serializer)
+        return response_data, HTTPStatus.OK
+    
+    @student_namespace.expect(student_serializer)
+    @student_namespace.marshal_with(student_serializer)
     def post(self):
         """
         Create a new student
