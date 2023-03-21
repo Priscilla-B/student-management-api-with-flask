@@ -44,7 +44,7 @@ student_serializer = student_namespace.model(
 )
 
 
-@student_namespace.route('/students')
+@student_namespace.route('')
 class StudentGetCreate(
     Resource, UserCreationMixin, StudentResponseMixin):
 
@@ -88,7 +88,7 @@ class StudentGetCreate(
         return response_data, HTTPStatus.CREATED
 
 
-@student_namespace.route('/student/<student_id>')
+@student_namespace.route('/<student_id>')
 class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
 
     @jwt_required()
