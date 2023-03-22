@@ -3,7 +3,7 @@ import getpass
 from flask.cli import FlaskGroup
 from werkzeug.security import generate_password_hash
 
-from api.auth.models import User, Role
+from api.auth.models import User
 from app import app
 
 cli = FlaskGroup(app)
@@ -23,6 +23,7 @@ def create_admin():
     if password != confirm_password:
         print("Passwords don't match")
         return 1
+
     
     try:
         user = User(
@@ -32,13 +33,13 @@ def create_admin():
             email=email,
             password=generate_password_hash(password),
             is_staff=True,
-            is_active=True
+            is_active=True,
+            role='admin'
         )
-    
-        role = Role(name='admin')
-        role.save()
-        user.role = [role]
+        
         user.save()
+        
+        
     except Exception:
         print(Exception)
 

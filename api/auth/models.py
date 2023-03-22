@@ -8,17 +8,10 @@ from api.utils import db
 
 
 
-# class RoleOptions(Enum):
-#     ADMIN = 'admin'
-#     STUDENT = 'student'
-#     TEACHER = 'teacher'
-
-
-UserRole = db.Table(
-    'user_group', db.Model.metadata,
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('role_id', db.Integer, db.ForeignKey('role.id'))
-)
+class RoleOptions(Enum):
+    admin = 'admin'
+    student = 'student'
+    teacher = 'teacher'
 
 
 
@@ -35,8 +28,9 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), default=False)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
     student = db.relationship('Student', backref='user', uselist=False)
+    courses = db.relationship('Course', backref='user')
     # uselist=False makes relationship One to One
-    role = db.relationship('Role', secondary=UserRole)
+    role = db.Column(Enum(RoleOptions))
     
     def __repr__(self):
         return f'{self.username}'
@@ -68,20 +62,5 @@ class User(db.Model):
 
     def delete(self):
         db.session.delete(self)
-        db.session.commit()
-
-
-class Role(db.Model):
-    __tablename__ = 'role'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False, unique=True)
-
-
-    def __repr__(self):
-        return f'{self.name}'
-    
-    def save(self):
-        db.session.add(self)
         db.session.commit()
 

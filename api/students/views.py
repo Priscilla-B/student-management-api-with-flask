@@ -71,8 +71,8 @@ class StudentGetCreate(
 
         data = student_namespace.payload
         
-        role_name = 'student'
-        new_user = self.create_user(data, role_name).as_dict()
+        role = 'student'
+        new_user = self.create_user(data, role).as_dict()
 
         new_student = Student(
             user_id = new_user['id'],

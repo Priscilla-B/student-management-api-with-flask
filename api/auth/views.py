@@ -5,7 +5,7 @@ from flask_restx import Namespace, Resource, fields
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .models import User, Role
+from .models import User
 from .mixins import UserCreationMixin
 
 auth_namespace = Namespace(
@@ -21,7 +21,11 @@ register_serializer = auth_namespace.model(
         'username': fields.String(required=True, description='public display name of user'),
         'email': fields.String(required=True, description='user email address'),
         'password': fields.String(required=True, 
-                                  description='hash value of user password'),                    
+                                  description='hash value of user password'),
+        'role':fields.String(required=True, 
+                            decription='role for user, whether staff or admin.',
+                            # enum=[role for role in Role.query.all() if role.name is not "student" ]
+                                  )                    
     }
 )
 
@@ -109,7 +113,7 @@ class GetUsers(Resource):
         return users, HTTPStatus.OK
     
 
-@auth_namespace.route('/users/user/<int:pk>')
+@auth_namespace.route('/users/<int:pk>')
 class GetUpdateDeleteUser(Resource):
     @jwt_required()
     @auth_namespace.marshal_with(get_user_serializer)
@@ -118,44 +122,15 @@ class GetUpdateDeleteUser(Resource):
         user = User.get_by_id(pk)
 
         return user, HTTPStatus.OK
-
-
-
-@auth_namespace.route('/roles/')
-class CreateGetRoles(Resource):
-
-    @jwt_required()
-    @auth_namespace.expect(role_serializer)
-    @auth_namespace.marshal_with(role_serializer)
-
-    def post(self):
-        data = request.get_json()
-
-        new_role = Role(
-            name = data.get('name'),
-        )
-
-        new_role.save()
-        
-    @jwt_required()
-    @auth_namespace.marshal_with(role_serializer)
-    def get(self):
-
-        roles = Role.query.all()
-
-        return roles, HTTPStatus.OK
     
 
-@auth_namespace.route('/groups/group/<int:pk>')
-class GetUpdateDeleteRole(Resource):
     @jwt_required()
-    @auth_namespace.marshal_with(role_serializer)
-    def get(self,pk):
+    def delete(self, pk):
+        user = User.get_by_id(pk)
 
-        role = Role.query.filter_by(id=pk).first_or_404()
+        user.delete()
 
-        return role, HTTPStatus.OK
-    
+        return {"message":f"User with id {pk} has been deleted"}, HTTPStatus.OK
 
 
 @auth_namespace.route('/refresh')
