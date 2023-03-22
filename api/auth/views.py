@@ -7,57 +7,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from .models import User
 from .mixins import UserCreationMixin
+from .serializers import register_serializer, login_serializer, get_user_serializer
 
 auth_namespace = Namespace(
     'auth',
     description='a namespace for authentication logic')
 
 
-register_serializer = auth_namespace.model(
-    'User', {
-        'id': fields.Integer(),
-        'first_name': fields.String(required=True, description='first name of user'),
-        'last_name': fields.String(required=True, description='last name of user'),
-        'username': fields.String(required=True, description='public display name of user'),
-        'email': fields.String(required=True, description='user email address'),
-        'password': fields.String(required=True, 
-                                  description='hash value of user password'),
-        'role':fields.String(required=True, 
-                            decription='role for user, whether staff or admin.',
-                            # enum=[role for role in Role.query.all() if role.name is not "student" ]
-                                  )                    
-    }
-)
-
-
-login_serializer = auth_namespace.model(
-    'Login', {
-    'email':fields.String(required=True, description='user email address'),
-    'password': fields.String(required=True, 
-                                  description='user input of password')
-    }
-)
-
-
-get_user_serializer = auth_namespace.model(
-    'User', {
-        'id': fields.Integer(),
-        'first_name': fields.String(required=True, description='first name of user'),
-        'last_name': fields.String(required=True, description='last name of user'),
-        'username': fields.String(required=True, description='public display name of user'),
-        'email': fields.String(required=True, description='user email address'),
-        'role': fields.String(required=True, 
-                                  description='hash value of user password') 
-    }
-)
-
-
-role_serializer = auth_namespace.model(
-    'Role', {
-        'id': fields.Integer(),
-        'name': fields.String(required=True, description='name of user group'),
-    }
-)
 
 
 @auth_namespace.route('/register')
