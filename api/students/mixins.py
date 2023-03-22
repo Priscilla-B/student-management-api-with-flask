@@ -1,4 +1,3 @@
-from .models import Student
 
 class StudentResponseMixin(object):
 
