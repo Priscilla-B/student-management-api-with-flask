@@ -13,7 +13,7 @@ class UserCreationMixin(object):
             role = RoleOptions[role_input]
         except KeyError:
             return {
-                "messsage": f"Role input <{role_input}> not in defined roles: {[r.value for r in RoleOptions]} "}, HTTPStatus.BAD_REQUEST
+                "messsage": f"Role input <{role_input}> not in defined roles: {[r.value for r in RoleOptions]} "}, 400
 
         new_user = User(
                 first_name = data.get('first_name'),
@@ -28,7 +28,7 @@ class UserCreationMixin(object):
         new_user.save()
 
        
-        return marshal(new_user, register_serializer), HTTPStatus.CREATED
+        return marshal(new_user, register_serializer), 201
     
     def update_user(self, user_instance):
         pass
