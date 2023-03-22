@@ -1,10 +1,19 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User
+from http import HTTPStatus
+from flask_restx import marshal
+from .models import User, RoleOptions
+from .serializers import register_serializer
 
 class UserCreationMixin(object):
 
     @classmethod
-    def create_user(self, data, role):
+    def create_user(self, data):
+        role_input = data.get('role')
+        try:
+            role = RoleOptions[role_input]
+        except KeyError:
+            return {
+                "messsage": f"Role input <{role_input}> not in defined roles: {[r.value for r in RoleOptions]} "}, HTTPStatus.BAD_REQUEST
 
         new_user = User(
                 first_name = data.get('first_name'),
@@ -18,5 +27,9 @@ class UserCreationMixin(object):
 
         new_user.save()
 
-        return new_user
+       
+        return marshal(new_user, register_serializer), HTTPStatus.CREATED
+    
+    def update_user(self, user_instance):
+        pass
     
