@@ -1,12 +1,14 @@
 from api.utils import db
+from api.courses.models import StudentCourse
 from sqlalchemy.sql import func
 
 class Student(db.Model):
-    __tablename__ = 'students'
+    __tablename__ = 'student'
 
     student_id = db.Column(db.String(20),primary_key=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    courses = db.relationship('Course', secondary=StudentCourse)
     
     def __repr__(self):
         return f'{self.student_id}'
