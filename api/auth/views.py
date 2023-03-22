@@ -5,7 +5,8 @@ from flask_restx import Namespace, Resource, fields
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .models import User
+from api.utils import db
+from .models import User, RoleOptions
 from .mixins import UserCreationMixin
 from .serializers import register_serializer, login_serializer, get_user_serializer
 
@@ -20,19 +21,14 @@ auth_namespace = Namespace(
 class Register(Resource, UserCreationMixin):
 
     @auth_namespace.expect(register_serializer)
-    @auth_namespace.marshal_with(register_serializer)
+    # @auth_namespace.marshal_with(register_serializer)
     def post(self):
         """
         Create a new user
         """
         data = request.get_json()
-
-        new_user = self.create_user(data)
        
-
-        # HTTPStatus.CREATED returns code 201 indicating 
-        # that an object has been created
-        return new_user, HTTPStatus.CREATED
+        return self.create_user(data)
         
     
     
@@ -78,6 +74,27 @@ class GetUpdateDeleteUser(Resource):
         user = User.get_by_id(pk)
 
         return user, HTTPStatus.OK
+    
+    @jwt_required()
+    @auth_namespace.expect(get_user_serializer)
+    @auth_namespace.marshal_with(get_user_serializer)
+    def put(self, pk):
+
+        user = User.get_by_id(pk)
+        data = auth_namespace.payload
+        user_fields = [c.name for c in User.__table__.columns]
+
+        for key, value in data.items():
+            if key in user_fields:
+                user[key] = value
+            else:
+                return {"msg":f"Could not update student with key {key}"}, HTTPStatus.BAD_REQUEST
+        
+        db.session.commit()
+        
+    
+        return user, HTTPStatus.OK
+
     
 
     @jwt_required()
