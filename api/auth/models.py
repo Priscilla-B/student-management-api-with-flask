@@ -27,7 +27,7 @@ class User(db.Model):
     student = db.relationship('Student', backref='user', uselist=False)
     courses = db.relationship('Course', backref='user')
     # uselist=False makes relationship One to One
-    role = db.Column(Enum(RoleOptions))
+    role = db.Column(db.Enum(RoleOptions), nullable=True)
     
     def __repr__(self):
         return f'{self.username}'
