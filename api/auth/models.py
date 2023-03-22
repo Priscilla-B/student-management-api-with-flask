@@ -1,7 +1,4 @@
 from enum import Enum
-
-from flask_authorize import RestrictionsMixin, AllowancesMixin
-from flask_authorize import PermissionsMixin
 from sqlalchemy.sql import func
 
 from api.utils import db
