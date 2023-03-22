@@ -33,16 +33,22 @@ class StudentGetCreate(
         return response_data, HTTPStatus.OK
     
     @student_namespace.expect(student_serializer)
-    @student_namespace.marshal_with(student_serializer)
+    # @student_namespace.marshal_with(student_serializer)
     def post(self):
         """
         Create a new student
         """
 
         data = student_namespace.payload
+        data['role'] = 'student'
         
-        role = 'student'
-        new_user = self.create_user(data, role).as_dict()
+
+        user_response = self.create_user(data)
+        if user_response[1] == 201:
+            new_user = user_response[0]
+        else:
+            return user_response
+       
 
         new_student = Student(
             user_id = new_user['id'],
