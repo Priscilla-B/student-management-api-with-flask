@@ -63,7 +63,7 @@ get_student_course_serializer = course_namespace.model(
             required = True
     ),
     'teacher':fields.String(
-            description='Name of course',
+            description='Name of teacher assigned to course',
             required = True
     ),
     'student_id':fields.String(
@@ -71,7 +71,7 @@ get_student_course_serializer = course_namespace.model(
             required = True
     ),
     'student_name':fields.String(
-            description='Name of course',
+            description='Name of student registering for course',
             required = True
     )
     
