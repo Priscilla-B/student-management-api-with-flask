@@ -2,7 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from http import HTTPStatus
 from flask_restx import marshal
 from .models import User, RoleOptions
-from .serializers import register_serializer
+from .serializers import create_user_serializer
 
 class UserCreationMixin(object):
 
@@ -28,7 +28,7 @@ class UserCreationMixin(object):
         new_user.save()
 
        
-        return marshal(new_user, register_serializer), 201
+        return marshal(new_user, create_user_serializer), 201
     
     def update_user(self, user_instance):
         pass
