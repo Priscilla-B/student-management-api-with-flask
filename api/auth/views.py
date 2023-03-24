@@ -42,8 +42,6 @@ class Login(Resource):
         email = data.get('email')
         password = data.get('password')
         user = User.query.filter_by(email=email).first()
-        print(user)
-        print(check_password_hash(user.password, password))
 
         if user is None:
             response = {"message": "User with email {email} could not be found"}
