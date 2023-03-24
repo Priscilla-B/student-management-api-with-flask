@@ -3,7 +3,7 @@ from .serializers import student_serializer
 
 class StudentResponseMixin(object):
 
-    def get_response(self, student_instance):
+    def get_student_response(self, student_instance):
         
         response_data = {}
         user = student_instance.user.as_dict()

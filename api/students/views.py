@@ -28,7 +28,7 @@ class StudentGetCreate(
         students = Student.query.all()
         response_data = []
         for student in students:
-            response_data.append(self.get_response(student))
+            response_data.append(self.get_student_response(student))
     
         return response_data, HTTPStatus.OK
     
@@ -58,7 +58,7 @@ class StudentGetCreate(
         
         new_student.save()
 
-        response_data = self.get_response(new_student)
+        response_data = self.get_student_response(new_student)
        
 
         return response_data, HTTPStatus.CREATED
@@ -72,7 +72,7 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
     def get(self, student_id):
         student = Student.get_by_id(student_id)
         
-        response_data = self.get_response(student)
+        response_data = self.get_student_response(student)
         return response_data, HTTPStatus.OK
     
     @jwt_required()
@@ -99,7 +99,7 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
         db.session.commit()
         
     
-        return self.get_response(student), HTTPStatus.OK
+        return self.get_student_response(student), HTTPStatus.OK
     
     @jwt_required()
     def delete(self, student_id):
