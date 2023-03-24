@@ -1,5 +1,8 @@
 from flask_restx import Namespace, fields
 
+from ..grading.models import GradePoints
+from ..students.serializers import student_serializer
+
 course_namespace = Namespace(
     'courses',
     description='a namespace for course logic')
@@ -84,11 +87,52 @@ get_course_students_serializer = course_namespace.model(
             description='Name of teacher assigned to course',
             required = True
     ),
-    'students':fields.String(
+    'students':fields.List(
             description='ID of student registering for course',
+            cls_or_instance=fields.Nested(student_serializer),
             required = True
     )
     
+
+    }
+)
+
+grades_fields = {
+    "student_id":fields.String(
+            description='ID of associated student',
+            required = True),
+
+    'student_name':fields.String(
+            description='Name of associated student',
+            required = True),
+
+    'score':fields.Float(
+            description='Score attained by student for course',
+            required = True),
+
+    'grade_point':fields.String(
+            description='grade point attained by student for course',
+            required = True,
+            enum=GradePoints)
+}
+
+
+get_course_grades_serializer = course_namespace.model(
+    'CourseStudentsGet',
+    {
+    'course_id':fields.Integer(
+            description='ID of course being taken',
+            required = True
+    ),
+    'course_name':fields.String(
+            description='Name of course',
+            required = True
+    ),
+    'grades':fields.List(
+            description='Name of teacher assigned to course',
+            cls_or_instance=fields.Nested(grades_fields),
+            required = True
+    ),
 
     }
 )
