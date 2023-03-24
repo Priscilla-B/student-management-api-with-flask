@@ -26,6 +26,20 @@ class Course(db.Model):
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
+    def __getitem__(self, key):
+        """
+        To enable item assignments such as user["name"]
+        instead of user.name
+        """
+        return getattr(self, key)
+    
+    def __setitem__(self, key, value):
+        """
+        To enable item assignments such as student["name"]="new name{}
+        instead of student.name = "new name"
+        """
+        return setattr(self, key, value)
+    
     @classmethod
     def get_by_id(cls, course_id):
         return cls.query.get_or_404(course_id)
