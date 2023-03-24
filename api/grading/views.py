@@ -2,6 +2,7 @@ from flask_restx import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
+from ..utils.decorators import admin_required
 from ..students.models import Student
 from .models import Grade
 from .serializers import *
@@ -15,6 +16,7 @@ grading_namespace = Namespace(
 class CreateStudentGrade(Resource):
 
     @jwt_required()
+    @admin_required()
     @grading_namespace.expect(student_course_grade_serializer)
     @grading_namespace.marshal_with(student_course_grade_serializer)
     def post(self):

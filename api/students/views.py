@@ -2,9 +2,10 @@ from flask_restx import Namespace, Resource
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
-from api.auth.models import User
-from api.auth.mixins import UserCreationMixin
-from api.utils import db
+from ..auth.models import User
+from ..auth.mixins import UserCreationMixin
+from ..utils import db
+from ..utils.decorators import admin_required
 from .models import Student
 from .mixins import StudentResponseMixin
 from .serializers import student_serializer, create_student_serializer
@@ -32,8 +33,9 @@ class StudentGetCreate(
     
         return response_data, HTTPStatus.OK
     
+    @jwt_required()
+    @admin_required()
     @student_namespace.expect(create_student_serializer)
-    # @student_namespace.marshal_with(student_serializer)
     def post(self):
         """
         Create a new student
@@ -76,6 +78,7 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
         return response_data, HTTPStatus.OK
     
     @jwt_required()
+    @admin_required()
     @student_namespace.expect(student_serializer)
     @student_namespace.marshal_with(student_serializer)
     def put(self, student_id):
@@ -102,6 +105,7 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
         return self.get_student_response(student), HTTPStatus.OK
     
     @jwt_required()
+    @admin_required()
     def delete(self, student_id):
         student = Student.get_by_id(student_id)
         user = student.user

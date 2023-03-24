@@ -2,7 +2,8 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
-from api.utils import db
+from ..utils import db
+from ..utils.decorators import admin_required
 from ..students.models import Student
 from ..students.mixins import StudentResponseMixin
 from ..grading.models import Grade
@@ -19,8 +20,8 @@ course_namespace = Namespace(
 @course_namespace.route('')
 class CourseGetCreate(Resource):
 
-    @course_namespace.marshal_with(course_serializer)
     @jwt_required()
+    @course_namespace.marshal_with(course_serializer)
     def get(self):
         """
         Get all courses
@@ -31,6 +32,7 @@ class CourseGetCreate(Resource):
         return courses, HTTPStatus.OK
     
     @jwt_required()
+    @admin_required()
     @course_namespace.expect(course_serializer)
     @course_namespace.marshal_with(course_serializer)
     def post(self):
@@ -65,6 +67,7 @@ class GetUpdateDeleteCourse(Resource):
         return course, HTTPStatus.OK
     
     @jwt_required()
+    @admin_required()
     @course_namespace.expect(course_serializer)
     @course_namespace.marshal_with(course_serializer)
     def put(self, course_id):
@@ -81,6 +84,7 @@ class GetUpdateDeleteCourse(Resource):
         return course, HTTPStatus.OK
     
     @jwt_required()
+    @admin_required()
     def delete(self, course_id):
         course = Course.get_by_id(course_id)
         course.delete()
@@ -91,6 +95,7 @@ class GetUpdateDeleteCourse(Resource):
 @course_namespace.route('/register')
 class StudentCourseCreate(Resource):
     @jwt_required()
+    @admin_required()
     @course_namespace.expect(register_course_serializer)
     @course_namespace.marshal_with(get_student_course_serializer)
     def post(self):
