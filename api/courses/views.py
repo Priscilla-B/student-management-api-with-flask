@@ -4,9 +4,13 @@ from http import HTTPStatus
 
 from api.utils import db
 from ..students.models import Student
+from ..students.mixins import StudentResponseMixin
 from .models import Course
 from .mixins import CourseResponseMixin
-
+from .serializers import (
+    course_serializer, register_course_serializer, 
+    get_student_course_serializer, get_course_students_serializer
+)
 
 
 from flask_restx import Namespace, Resource
@@ -14,71 +18,6 @@ from flask_restx import Namespace, Resource
 course_namespace = Namespace(
     'courses',
     description='a namespace for course logic')
-
-
-course_serializer = course_namespace.model(
-    'Course', 
-        {
-        'id':fields.Integer(
-            description='ID of course',
-            required = True
-        ),
-        'name':fields.String(
-            description='Name of course',
-            required = True
-        ),
-        'teacher_id': fields.Integer(
-            description='Teacher assigned to course',
-            required = True
-        )
-        }
-)
-
-
-register_course_serializer = course_namespace.model(
-    'StudentCourse',
-    {
-    'student_id':fields.String(
-            description='ID of student registering for course',
-            required = True
-    ),
-    'course_id':fields.Integer(
-            description='ID of course being taken',
-            required = True
-    )
-
-    }
-)
-
-
-get_student_course_serializer = course_namespace.model(
-    'StudentCourseGet',
-    {
-    'course_id':fields.Integer(
-            description='ID of course being taken',
-            required = True
-    ),
-    'course_name':fields.String(
-            description='Name of course',
-            required = True
-    ),
-    'teacher':fields.String(
-            description='Name of teacher assigned to course',
-            required = True
-    ),
-    'student_id':fields.String(
-            description='ID of student registering for course',
-            required = True
-    ),
-    'student_name':fields.String(
-            description='Name of student registering for course',
-            required = True
-    )
-    
-
-    }
-)
-
 
 @course_namespace.route('')
 class CourseGetCreate(Resource):
@@ -118,14 +57,42 @@ class CourseGetCreate(Resource):
 
 @course_namespace.route('/<int:course_id>')
 class GetUpdateDeleteCourse(Resource):
-    def get(self):
+    @jwt_required()
+    @course_namespace.marshal_with(course_serializer)
+    def get(self, course_id):
         """
-        Get details of a course
+        Get a course by id
         """
+        course = Course.get_by_id(course_id)
+
+        return course, HTTPStatus.OK
+    
+    @jwt_required()
+    @course_namespace.expect(course_serializer)
+    @course_namespace.marshal_with(course_serializer)
+    def put(self, course_id):
+
+        course = Course.get_by_id(course_id)
+        data = course_namespace.payload
+
+        for key, value in data.items():
+            course[key] = value
+
+        db.session.commit()
+        
+    
+        return course, HTTPStatus.OK
+    
+    @jwt_required()
+    def delete(self, course_id):
+        course = Course.get_by_id(course_id)
+        course.delete()
+
+        return {"message":f"Course with id {course_id} has been deleted"}, HTTPStatus.OK
 
 
 @course_namespace.route('/register')
-class StudentCourseGetCreate(Resource):
+class StudentCourseCreate(Resource):
     @jwt_required()
     @course_namespace.expect(register_course_serializer)
     @course_namespace.marshal_with(get_student_course_serializer)
@@ -148,6 +115,30 @@ class StudentCourseGetCreate(Resource):
         response['course_id'] = course_id
         response['course_name'] = course.name
         response['teacher'] = course.teacher
+    
+        return response, 201
+    
+@course_namespace.route('/<int:course_id>/students')
+class StudentCourseStudentsGet(Resource, StudentResponseMixin):
+    @jwt_required()
+    @course_namespace.marshal_with(get_course_students_serializer)
+    def get(self, course_id):
+        """
+        Get all students registered to a course
+        """
+        course = Course.get_by_id(course_id)
+        students = course.students
+
+        response = {}
+        response['course_id'] = course_id
+        response['course_name'] = course.name
+        response['teacher'] = course.teacher
+
+        student_response = []
+        for student in students:
+            student_response.append(self.get_student_response(student))
+
+        response['students'] = student_response
     
         return response, 201
 
