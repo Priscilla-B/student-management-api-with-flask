@@ -11,14 +11,29 @@ StudentCourse = db.Table(
 
 
 class Course(db.Model):
+    __tablename__ = 'course'
+
     id = db.Column(db.Integer, primary_key=True)
-    course_id = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(150), nullable=False)
-    teacher= db.Column(db.Integer, db.ForeignKey('user.id'))
-    # students = db.relationship('Student', secondary=StudentCourse)
+    teacher_id= db.Column(db.Integer, db.ForeignKey('user.id'))
+    teacher = db.relationship('User', backref='teacher')
+    students = db.relationship('Student', secondary=StudentCourse)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
    
-
-    
     def __repr__(self):
-        return f'{self.username}'
+        return f'{self.name}'
+    
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+    @classmethod
+    def get_by_id(cls, course_id):
+        return cls.query.get_or_404(course_id)
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
