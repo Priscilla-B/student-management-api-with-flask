@@ -6,8 +6,19 @@ auth_namespace = Namespace(
     'auth',
     description='a namespace for authentication logic')
 
+register_admin_serializer = auth_namespace.model(
+    'User', {
+        'id': fields.Integer(),
+        'first_name': fields.String(required=True, description='first name of user'),
+        'last_name': fields.String(required=True, description='last name of user'),
+        'username': fields.String(required=True, description='public display name of user'),
+        'email': fields.String(required=True, description='user email address'),
+        'password': fields.String(required=True, 
+                                  description='hash value of user password')                 
+    }
+)
 
-register_serializer = auth_namespace.model(
+create_user_serializer = auth_namespace.model(
     'User', {
         'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
