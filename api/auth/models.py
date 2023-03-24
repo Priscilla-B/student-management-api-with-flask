@@ -53,6 +53,9 @@ class User(db.Model):
     def get_by_id(cls, student_id):
         return cls.query.get_or_404(student_id)
     
+    def get_full_name(self):
+        return f'{self.first_name} {self.last_name}'
+    
     def save(self):
         db.session.add(self)
         db.session.commit()
