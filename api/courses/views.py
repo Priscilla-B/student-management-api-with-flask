@@ -143,12 +143,12 @@ class StudentCourseGetCreate(Resource):
         db.session.commit()
 
         response = {}
+        response['student_id'] = student_id
+        response['student_name'] = student.user.get_full_name()
         response['course_id'] = course_id
         response['course_name'] = course.name
         response['teacher'] = course.teacher
-        response['student_id'] = student_id
-        response['student_name'] = student.user.get_full_name()
-
+    
         return response, 201
 
         
