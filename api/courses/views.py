@@ -5,12 +5,9 @@ from http import HTTPStatus
 from api.utils import db
 from ..students.models import Student
 from ..students.mixins import StudentResponseMixin
+from ..grading.models import Grade
 from .models import Course
-from .mixins import CourseResponseMixin
-from .serializers import (
-    course_serializer, register_course_serializer, 
-    get_student_course_serializer, get_course_students_serializer
-)
+from .serializers import  *
 
 
 from flask_restx import Namespace, Resource
@@ -119,7 +116,7 @@ class StudentCourseCreate(Resource):
         return response, 201
     
 @course_namespace.route('/<int:course_id>/students')
-class StudentCourseStudentsGet(Resource, StudentResponseMixin):
+class CourseStudentsGet(Resource, StudentResponseMixin):
     @jwt_required()
     @course_namespace.marshal_with(get_course_students_serializer)
     def get(self, course_id):
@@ -142,6 +139,40 @@ class StudentCourseStudentsGet(Resource, StudentResponseMixin):
     
         return response, 201
 
+
+@course_namespace.route('/<int:course_id>/students_grades')
+class CourseStudentsGradesGet(Resource):
+    @jwt_required()
+    @course_namespace.marshal_with(get_course_grades_serializer)
+    def get(self, course_id):
+        """
+        Get grades of all students registered to a course
+        """
+        course = Course.get_by_id(course_id)
+        students = course.students
+
+        response = {}
+        response['course_id'] = course_id
+        response['course_name'] = course.name
+
+        grades_response = []
+        for student in students:
+            grade = Grade.query.filter_by(
+                student_id=student.student_id,
+                course_id = course_id).first()
+            
+            grades_response.append({
+                'student_id': student.student_id,
+                'student_name': student.user.get_full_name(),
+                'score': grade.score,
+                'grade_point': grade.grade_point
+            })
+
+        response['grades'] = grades_response
+    
+        return response, 200
+
         
+
 
 
