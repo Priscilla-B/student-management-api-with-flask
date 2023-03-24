@@ -25,7 +25,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), default=False)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
     student = db.relationship('Student', backref='user', uselist=False)
-    courses = db.relationship('Course', backref='user')
+    courses = db.relationship('Course', backref='user', viewonly=True)
     # uselist=False makes relationship One to One
     role = db.Column(db.Enum(RoleOptions), nullable=True)
     
