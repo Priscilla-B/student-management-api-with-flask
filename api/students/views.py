@@ -7,7 +7,7 @@ from api.auth.mixins import UserCreationMixin
 from api.utils import db
 from .models import Student
 from .mixins import StudentResponseMixin
-from .serializers import student_serializer
+from .serializers import student_serializer, create_student_serializer
 
 student_namespace = Namespace(
     'students',
@@ -32,7 +32,7 @@ class StudentGetCreate(
     
         return response_data, HTTPStatus.OK
     
-    @student_namespace.expect(student_serializer)
+    @student_namespace.expect(create_student_serializer)
     # @student_namespace.marshal_with(student_serializer)
     def post(self):
         """
