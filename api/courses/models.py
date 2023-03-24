@@ -17,7 +17,7 @@ class Course(db.Model):
     name = db.Column(db.String(150), nullable=False)
     teacher_id= db.Column(db.Integer, db.ForeignKey('user.id'))
     teacher = db.relationship('User', backref='teacher')
-    students = db.relationship('Student', secondary=StudentCourse)
+    students = db.relationship('Student', secondary=StudentCourse, viewonly=True)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
    
     def __repr__(self):
