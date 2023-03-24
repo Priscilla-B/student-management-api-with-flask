@@ -42,8 +42,17 @@ class Login(Resource):
         email = data.get('email')
         password = data.get('password')
         user = User.query.filter_by(email=email).first()
+        print(user)
+        print(check_password_hash(user.password, password))
 
-        if user is not None and check_password_hash(user.password, password):
+        if user is None:
+            response = {"message": "User with email {email} could not be found"}
+            return response, 400
+        
+        if not check_password_hash(user.password, password):
+            response =  {"message": "Password incorrect"}
+            http_status = 400
+        else:
             access_token = create_access_token(identity=user.username)
             refresh_token = create_refresh_token(identity=user.username)
 
@@ -51,9 +60,10 @@ class Login(Resource):
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
+            http_status = 201
 
-            return response, HTTPStatus.OK
-
+        return response, http_status
+       
 @auth_namespace.route('/users')
 class GetUsers(Resource):
     @jwt_required()
