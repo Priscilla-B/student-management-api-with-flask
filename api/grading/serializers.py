@@ -1,6 +1,5 @@
-from flask_restx import Namespace, fields
+from flask_restx import fields
 
-from .models import GradePoints
 
 student_course_grade_serializer = {
         'student_id':fields.String(
@@ -18,7 +17,7 @@ student_course_grade_serializer = {
         'grade_point': fields.String(
             description='associated grade point for score attained',
             required = True,
-            enum = GradePoints
+            enum = ['A', 'B', 'C', 'D', 'E', 'F']
         )
 }
 

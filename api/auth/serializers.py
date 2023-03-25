@@ -1,5 +1,4 @@
 from flask_restx import fields
-from .models import RoleOptions
 
 register_admin_serializer = {
         'id': fields.Integer(),
@@ -22,7 +21,7 @@ create_user_serializer = {
                                   description='hash value of user password'),
         'role':fields.String(required=True, 
                             decription='role for user, whether staff or admin.',
-                            enum=RoleOptions
+                            enum=['admin', 'teacher', 'student']
                                   )                    
 }
 
@@ -43,7 +42,7 @@ get_user_serializer = {
         'email': fields.String(required=True, description='user email address'),
         'role':fields.String(required=True, 
                             decription='role for user, whether staff or admin.',
-                            enum=RoleOptions
+                            enum=['admin', 'teacher', 'student']
                                   )        
 }
 

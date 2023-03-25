@@ -1,6 +1,5 @@
 from flask_restx import fields
 
-from ..grading.models import GradePoints
 from ..students.views import student_model
 
 
@@ -99,7 +98,7 @@ grades_fields = {
     'grade_point':fields.String(
             description='grade point attained by student for course',
             required = True,
-            enum=GradePoints)
+            enum=['A', 'B', 'C', 'D', 'E', 'F'])
 }
 
 
