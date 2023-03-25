@@ -44,7 +44,7 @@ class RegisterAdmin(Resource, UserCreationMixin):
         data['role'] = "admin"
 
         create_user_response = self.create_user(data)
-        new_user = marshal(create_user_response[0], create_user_model)
+        new_user = marshal(create_user_response[0], get_user_model)
         return new_user, create_user_response[1]
         
 
@@ -62,7 +62,7 @@ class CreateUser(Resource, UserCreationMixin):
         data = request.get_json()
 
         create_user_response = self.create_user(data)
-        new_user = marshal(create_user_response[0], create_user_model)
+        new_user = marshal(create_user_response[0], get_user_model)
         return new_user, create_user_response[1]
         
     

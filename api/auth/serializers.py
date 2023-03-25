@@ -1,7 +1,6 @@
 from flask_restx import fields
 
 register_admin_serializer = {
-        'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
         'last_name': fields.String(required=True, description='last name of user'),
         'username': fields.String(required=True, description='public display name of user'),
@@ -12,7 +11,6 @@ register_admin_serializer = {
 
 
 create_user_serializer = {
-        'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
         'last_name': fields.String(required=True, description='last name of user'),
         'username': fields.String(required=True, description='public display name of user'),
