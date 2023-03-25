@@ -11,14 +11,19 @@ grading_namespace = Namespace(
     'grading',
     description='a namespace for grading logic')
 
+student_course_grade_model = grading_namespace.model(
+    'StudentCourseGrade', student_course_grade_serializer)
+
+student_gpa_model = grading_namespace.model(
+    'StudentGPA', student_gpa_serializer)
 
 @grading_namespace.route('')
 class CreateStudentGrade(Resource):
 
     @jwt_required()
     @admin_required()
-    @grading_namespace.expect(student_course_grade_serializer)
-    @grading_namespace.marshal_with(student_course_grade_serializer)
+    @grading_namespace.expect(student_course_grade_model)
+    @grading_namespace.marshal_with(student_course_grade_model)
     def post(self):
         data = grading_namespace.payload
 
@@ -65,4 +70,4 @@ class GetStudentGPA(Resource):
             "student_name": student.user.get_full_name(),
             "gpa": gpa
         }
-        return marshal(response_data, student_gpa_serializer), HTTPStatus.OK   
+        return marshal(response_data, student_gpa_model), HTTPStatus.OK   

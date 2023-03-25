@@ -1,13 +1,7 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import fields
 from .models import RoleOptions
 
-
-auth_namespace = Namespace(
-    'auth',
-    description='a namespace for authentication logic')
-
-register_admin_serializer = auth_namespace.model(
-    'User', {
+register_admin_serializer = {
         'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
         'last_name': fields.String(required=True, description='last name of user'),
@@ -15,11 +9,10 @@ register_admin_serializer = auth_namespace.model(
         'email': fields.String(required=True, description='user email address'),
         'password': fields.String(required=True, 
                                   description='hash value of user password')                 
-    }
-)
+}
 
-create_user_serializer = auth_namespace.model(
-    'User', {
+
+create_user_serializer = {
         'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
         'last_name': fields.String(required=True, description='last name of user'),
@@ -31,21 +24,18 @@ create_user_serializer = auth_namespace.model(
                             decription='role for user, whether staff or admin.',
                             enum=RoleOptions
                                   )                    
-    }
-)
+}
 
 
-login_serializer = auth_namespace.model(
-    'Login', {
+
+login_serializer = {
     'email':fields.String(required=True, description='user email address'),
     'password': fields.String(required=True, 
                                   description='user input of password')
-    }
-)
+}
 
 
-get_user_serializer = auth_namespace.model(
-    'User', {
+get_user_serializer = {
         'id': fields.Integer(),
         'first_name': fields.String(required=True, description='first name of user'),
         'last_name': fields.String(required=True, description='last name of user'),
@@ -55,5 +45,5 @@ get_user_serializer = auth_namespace.model(
                             decription='role for user, whether staff or admin.',
                             enum=RoleOptions
                                   )        
-    }
-)
+}
+

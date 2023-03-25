@@ -1,14 +1,6 @@
-from flask_restx import Namespace, Resource, fields, marshal
+from flask_restx import  fields
 
-
-student_namespace = Namespace(
-    'students',
-    description='a namespace for student logic')
-
-
-create_student_serializer = student_namespace.model(
-    'Student', 
-        {
+create_student_serializer = {
         'student_id':fields.String(
             description='custom created student ID',
             required = True
@@ -33,14 +25,11 @@ create_student_serializer = student_namespace.model(
             description='password to student account',
             required = True
         )
-        }
-)
+}
 
 
 
-student_serializer = student_namespace.model(
-    'Student', 
-        {
+student_serializer = {
         'user_id':fields.Integer(
             description='ID of related user',
             required = True
@@ -65,5 +54,4 @@ student_serializer = student_namespace.model(
             description='student email',
             required = True
         )
-        }
-)
+}

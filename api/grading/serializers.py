@@ -2,14 +2,7 @@ from flask_restx import Namespace, fields
 
 from .models import GradePoints
 
-grading_namespace = Namespace(
-    'grading',
-    description='a namespace for grading logic')
-
-
-student_course_grade_serializer = grading_namespace.model(
-    'StudentCourseGrade',
-    {
+student_course_grade_serializer = {
         'student_id':fields.String(
             description='ID of associated student',
             required = True
@@ -26,15 +19,11 @@ student_course_grade_serializer = grading_namespace.model(
             description='associated grade point for score attained',
             required = True,
             enum = GradePoints
-        ),
-    }
-
-)
+        )
+}
 
 
-student_gpa_serializer = grading_namespace.model(
-    'StudentGPA',
-    {
+student_gpa_serializer = {
     'student_id':fields.String(
             description='ID of associated student',
             required = True
@@ -49,6 +38,4 @@ student_gpa_serializer = grading_namespace.model(
             description='gpa of associated student',
             required = True
         )
-    }
-    
-)
+}

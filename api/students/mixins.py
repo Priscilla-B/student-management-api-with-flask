@@ -1,5 +1,3 @@
-from flask_restx import marshal
-from .serializers import student_serializer
 
 class StudentResponseMixin(object):
 
@@ -11,4 +9,4 @@ class StudentResponseMixin(object):
         user['user_id'] = user['id']
         response_data.update(user)
 
-        return marshal(response_data, student_serializer)
+        return response_data

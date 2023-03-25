@@ -1,25 +1,31 @@
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
 from ..auth.models import User
+from ..auth.views import create_user_model
 from ..auth.mixins import UserCreationMixin
 from ..utils import db
 from ..utils.decorators import admin_required
 from .models import Student
 from .mixins import StudentResponseMixin
-from .serializers import student_serializer, create_student_serializer
+from .serializers import *
 
 student_namespace = Namespace(
     'students',
     description='a namespace for student logic')
 
+create_student_model = student_namespace.model(
+    'Student', create_student_serializer)
+
+student_model= student_namespace.model(
+    'StudentGet', student_serializer)
 
 @student_namespace.route('')
 class StudentGetCreate(
     Resource, UserCreationMixin, StudentResponseMixin):
 
-    @student_namespace.marshal_with(student_serializer)
+    @student_namespace.marshal_with(student_model)
     @jwt_required()
     def get(self):
         """
@@ -29,13 +35,15 @@ class StudentGetCreate(
         students = Student.query.all()
         response_data = []
         for student in students:
-            response_data.append(self.get_student_response(student))
+
+            student_response = marshal(self.get_student_response(student), student_model)
+            response_data.append(student_response)
     
         return response_data, HTTPStatus.OK
     
     @jwt_required()
     @admin_required()
-    @student_namespace.expect(create_student_serializer)
+    @student_namespace.expect(create_student_model)
     def post(self):
         """
         Create a new student
@@ -47,7 +55,7 @@ class StudentGetCreate(
 
         user_response = self.create_user(data)
         if user_response[1] == 201:
-            new_user = user_response[0]
+            new_user = marshal(user_response[0], create_user_model)
         else:
             return user_response
        
@@ -60,27 +68,26 @@ class StudentGetCreate(
         
         new_student.save()
 
-        response_data = self.get_student_response(new_student)
-       
+        student_response = marshal(self.get_student_response(new_student), student_model)
 
-        return response_data, HTTPStatus.CREATED
+        return student_response, HTTPStatus.CREATED
 
 
 @student_namespace.route('/<student_id>')
 class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
 
     @jwt_required()
-    @student_namespace.marshal_with(student_serializer)
+    @student_namespace.marshal_with(student_model)
     def get(self, student_id):
         student = Student.get_by_id(student_id)
         
-        response_data = self.get_student_response(student)
-        return response_data, HTTPStatus.OK
+        student_response = marshal(self.get_student_response(student), student_model)
+        return student_response, HTTPStatus.OK
     
     @jwt_required()
     @admin_required()
-    @student_namespace.expect(student_serializer)
-    @student_namespace.marshal_with(student_serializer)
+    @student_namespace.expect(student_model)
+    @student_namespace.marshal_with(student_model)
     def put(self, student_id):
 
         student = Student.get_by_id(student_id)
@@ -101,8 +108,9 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
         
         db.session.commit()
         
+        student_response = marshal(self.get_student_response(student), student_model)
     
-        return self.get_student_response(student), HTTPStatus.OK
+        return student_response, HTTPStatus.OK
     
     @jwt_required()
     @admin_required()

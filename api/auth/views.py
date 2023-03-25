@@ -1,7 +1,7 @@
 from flask import request
 from flask_jwt_extended import (create_access_token, create_refresh_token, 
                                 jwt_required, get_jwt_identity)
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, marshal
 from http import HTTPStatus
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -11,29 +11,48 @@ from .models import User, RoleOptions
 from .mixins import UserCreationMixin
 from .serializers import *
 
+
 auth_namespace = Namespace(
     'auth',
     description='a namespace for authentication logic')
 
+register_admin_model = auth_namespace.model(
+    'Admin', register_admin_serializer
+)
+
+create_user_model = auth_namespace.model(
+    'User', create_user_serializer
+)
+
+login_model = auth_namespace.model(
+    'Login', login_serializer
+)
+
+get_user_model = auth_namespace.model(
+    'GetUser', get_user_serializer
+)
+
 @auth_namespace.route('/register_admin')
 class RegisterAdmin(Resource, UserCreationMixin):
 
-    @auth_namespace.expect(create_user_serializer)
+    @auth_namespace.expect(create_user_model)
     def post(self):
         """
         Register an admin
         """
         data = request.get_json()
         data['role'] = "admin"
-       
-        return self.create_user(data)
+
+        create_user_response = self.create_user(data)
+        new_user = marshal(create_user_response[0], create_user_model)
+        return new_user, create_user_response[1]
         
 
 
 @auth_namespace.route('/create_user')
 class CreateUser(Resource, UserCreationMixin):
 
-    @auth_namespace.expect(create_user_serializer)
+    @auth_namespace.expect(create_user_model)
     @jwt_required()
     @admin_required()
     def post(self):
@@ -41,8 +60,10 @@ class CreateUser(Resource, UserCreationMixin):
         Create a new user
         """
         data = request.get_json()
-       
-        return self.create_user(data)
+
+        create_user_response = self.create_user(data)
+        new_user = marshal(create_user_response[0], create_user_model)
+        return new_user, create_user_response[1]
         
     
     
@@ -50,7 +71,7 @@ class CreateUser(Resource, UserCreationMixin):
 @auth_namespace.route('/login')
 class Login(Resource):
 
-    @auth_namespace.expect(login_serializer)
+    @auth_namespace.expect(login_model)
     def post(self):
         data = request.get_json()
         email = data.get('email')
@@ -79,7 +100,7 @@ class Login(Resource):
 @auth_namespace.route('/users')
 class GetUsers(Resource):
     @jwt_required()
-    @auth_namespace.marshal_with(get_user_serializer)
+    @auth_namespace.marshal_with(get_user_model)
     def get(self):
 
         users = User.query.all()
@@ -90,7 +111,7 @@ class GetUsers(Resource):
 @auth_namespace.route('/users/<int:pk>')
 class GetUpdateDeleteUser(Resource):
     @jwt_required()
-    @auth_namespace.marshal_with(get_user_serializer)
+    @auth_namespace.marshal_with(get_user_model)
     def get(self,pk):
 
         user = User.get_by_id(pk)
@@ -99,8 +120,8 @@ class GetUpdateDeleteUser(Resource):
     
     @jwt_required()
     @admin_required()
-    @auth_namespace.expect(get_user_serializer)
-    @auth_namespace.marshal_with(get_user_serializer)
+    @auth_namespace.expect(get_user_model)
+    @auth_namespace.marshal_with(get_user_model)
     def put(self, pk):
 
         user = User.get_by_id(pk)

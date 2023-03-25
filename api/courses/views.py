@@ -1,4 +1,4 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from http import HTTPStatus
 
@@ -6,22 +6,54 @@ from ..utils import db
 from ..utils.decorators import admin_required
 from ..students.models import Student
 from ..students.mixins import StudentResponseMixin
+from ..students.views import student_model
 from ..grading.models import Grade
 from .models import Course
 from .serializers import  *
-
-
-from flask_restx import Namespace, Resource
 
 course_namespace = Namespace(
     'courses',
     description='a namespace for course logic')
 
+get_course_grades_serializer = {
+    'course_id':fields.Integer(
+            description='ID of course being taken',
+            required = True
+    ),
+    'course_name':fields.String(
+            description='Name of course',
+            required = True
+    ),
+    'grades':fields.List(
+            description='Name of teacher assigned to course',
+            cls_or_instance=fields.Nested(
+                course_namespace.model('GradesFields', grades_fields)),
+            required = True
+    )
+
+}
+
+
+course_model = course_namespace.model(
+    'Course', course_serializer)
+
+register_course_model = course_namespace.model(
+    'StudentCourseCreate', register_course_serializer)
+
+get_student_course_model = course_namespace.model(
+    'StudentCourseGet', get_student_course_serializer)
+
+get_course_students_model = course_namespace.model(
+    'CourseStudentsGet', get_course_students_serializer)
+
+get_course_grades_model = course_namespace.model(
+    'CourseStudentsGrades', get_course_grades_serializer)
+
 @course_namespace.route('')
 class CourseGetCreate(Resource):
 
     @jwt_required()
-    @course_namespace.marshal_with(course_serializer)
+    @course_namespace.marshal_with(course_model)
     def get(self):
         """
         Get all courses
@@ -33,8 +65,8 @@ class CourseGetCreate(Resource):
     
     @jwt_required()
     @admin_required()
-    @course_namespace.expect(course_serializer)
-    @course_namespace.marshal_with(course_serializer)
+    @course_namespace.expect(course_model)
+    @course_namespace.marshal_with(course_model)
     def post(self):
         """
         Create a new course
@@ -57,7 +89,7 @@ class CourseGetCreate(Resource):
 @course_namespace.route('/<int:course_id>')
 class GetUpdateDeleteCourse(Resource):
     @jwt_required()
-    @course_namespace.marshal_with(course_serializer)
+    @course_namespace.marshal_with(course_model)
     def get(self, course_id):
         """
         Get a course by id
@@ -68,8 +100,8 @@ class GetUpdateDeleteCourse(Resource):
     
     @jwt_required()
     @admin_required()
-    @course_namespace.expect(course_serializer)
-    @course_namespace.marshal_with(course_serializer)
+    @course_namespace.expect(course_model)
+    @course_namespace.marshal_with(course_model)
     def put(self, course_id):
 
         course = Course.get_by_id(course_id)
@@ -96,8 +128,8 @@ class GetUpdateDeleteCourse(Resource):
 class StudentCourseCreate(Resource):
     @jwt_required()
     @admin_required()
-    @course_namespace.expect(register_course_serializer)
-    @course_namespace.marshal_with(get_student_course_serializer)
+    @course_namespace.expect(register_course_model)
+    @course_namespace.marshal_with(get_student_course_model)
     def post(self):
         """
         Register a student to a course
@@ -123,7 +155,7 @@ class StudentCourseCreate(Resource):
 @course_namespace.route('/<int:course_id>/students')
 class CourseStudentsGet(Resource, StudentResponseMixin):
     @jwt_required()
-    @course_namespace.marshal_with(get_course_students_serializer)
+    @course_namespace.marshal_with(get_course_students_model)
     def get(self, course_id):
         """
         Get all students registered to a course
@@ -138,7 +170,8 @@ class CourseStudentsGet(Resource, StudentResponseMixin):
 
         student_response = []
         for student in students:
-            student_response.append(self.get_student_response(student))
+            student_response = marshal(self.get_student_response(student), student_model)
+            student_response.append(student_response)
 
         response['students'] = student_response
     
@@ -148,7 +181,7 @@ class CourseStudentsGet(Resource, StudentResponseMixin):
 @course_namespace.route('/<int:course_id>/students_grades')
 class CourseStudentsGradesGet(Resource):
     @jwt_required()
-    @course_namespace.marshal_with(get_course_grades_serializer)
+    @course_namespace.marshal_with(get_course_grades_model)
     def get(self, course_id):
         """
         Get grades of all students registered to a course

@@ -1,16 +1,10 @@
-from flask_restx import Namespace, fields
+from flask_restx import fields
 
 from ..grading.models import GradePoints
-from ..students.serializers import student_serializer
-
-course_namespace = Namespace(
-    'courses',
-    description='a namespace for course logic')
+from ..students.views import student_model
 
 
-course_serializer = course_namespace.model(
-    'Course', 
-        {
+course_serializer = {
         'id':fields.Integer(
             description='ID of course',
             required = True
@@ -23,13 +17,11 @@ course_serializer = course_namespace.model(
             description='Teacher assigned to course',
             required = True
         )
-        }
-)
+}
 
 
-register_course_serializer = course_namespace.model(
-    'StudentCourseCreate',
-    {
+
+register_course_serializer = {
     'student_id':fields.String(
             description='ID of student registering for course',
             required = True
@@ -39,13 +31,11 @@ register_course_serializer = course_namespace.model(
             required = True
     )
 
-    }
-)
+}
 
 
-get_student_course_serializer = course_namespace.model(
-    'StudentCourseGet',
-    {
+
+get_student_course_serializer = {
     'course_id':fields.Integer(
             description='ID of course being taken',
             required = True
@@ -68,13 +58,10 @@ get_student_course_serializer = course_namespace.model(
     )
     
 
-    }
-)
+}
 
 
-get_course_students_serializer = course_namespace.model(
-    'CourseStudentsGet',
-    {
+get_course_students_serializer = {
     'course_id':fields.Integer(
             description='ID of course being taken',
             required = True
@@ -89,13 +76,12 @@ get_course_students_serializer = course_namespace.model(
     ),
     'students':fields.List(
             description='ID of student registering for course',
-            cls_or_instance=fields.Nested(student_serializer),
+            cls_or_instance=fields.Nested(student_model),
             required = True
     )
     
 
-    }
-)
+}
 
 grades_fields = {
     "student_id":fields.String(
@@ -117,22 +103,3 @@ grades_fields = {
 }
 
 
-get_course_grades_serializer = course_namespace.model(
-    'CourseStudentsGet',
-    {
-    'course_id':fields.Integer(
-            description='ID of course being taken',
-            required = True
-    ),
-    'course_name':fields.String(
-            description='Name of course',
-            required = True
-    ),
-    'grades':fields.List(
-            description='Name of teacher assigned to course',
-            cls_or_instance=fields.Nested(grades_fields),
-            required = True
-    ),
-
-    }
-)
