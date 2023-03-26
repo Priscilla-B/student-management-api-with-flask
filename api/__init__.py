@@ -8,13 +8,13 @@ from .grading.views import grading_namespace
 from .students.views import student_namespace
 from .auth.models import User
 
-from .config.config import config_dict
+from .config.config import config_chosen
 from .utils import db, migrate
 
 
 
 
-def create_app(config=config_dict['dev']):
+def create_app(config=config_chosen):
     app = Flask(__name__)
 
     app.config.from_object(config)
