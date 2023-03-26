@@ -22,7 +22,21 @@ def create_app(config=config_chosen):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    api = Api(app)
+    authorizations = {
+        "Bearer Auth":{
+            "type":"apiKey",
+            "in":"header",
+            "name":"Authorization",
+            "description":"Add a JWT with ** Bearer &lt;JWT&gt; ** to authorize"
+        }
+    }
+
+    api = Api(
+        app,
+        title="Student Management API",
+        description="A REST API for a student management service",
+        authorizations=authorizations,
+        security="Bearer Auth")
 
     api.add_namespace(auth_namespace, path='/auth')
     api.add_namespace(course_namespace, path='/courses')
