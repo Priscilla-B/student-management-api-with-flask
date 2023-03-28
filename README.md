@@ -15,7 +15,7 @@ This API service is deployed on [pythonanywhere](http://priscillab.pythonanywher
 
 This project was built as a final project submission for my [AltSchool Africa School of Engineering](https://www.altschoolafrica.com/schools/engineering) education.
 
-![Capture of service endpoints](images\service-endpoints-capture.jpeg)
+![Capture of service endpoints](images/service-endpoints-capture.jpeg)
 
 
 ## How to Use
