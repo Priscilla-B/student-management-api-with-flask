@@ -25,6 +25,9 @@ class CreateStudentGrade(Resource):
     @grading_namespace.expect(student_course_grade_model)
     @grading_namespace.marshal_with(student_course_grade_model)
     def post(self):
+        """
+        Add a grade for a student for a particular course
+        """
         data = grading_namespace.payload
 
         new_grade = Grade(
@@ -43,6 +46,9 @@ class GetStudentGPA(Resource):
 
     @jwt_required()
     def get(self, student_id):
+        """
+        Get the final GPA for a student with given id
+        """
         student = Student.get_by_id(student_id)
         courses = student.courses
         if not courses:

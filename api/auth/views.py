@@ -36,9 +36,10 @@ get_user_model = auth_namespace.model(
 class RegisterAdmin(Resource, UserCreationMixin):
 
     @auth_namespace.expect(create_user_model)
+    # @auth_namespace.doc(description="Register an admin user")
     def post(self):
         """
-        Register an admin
+        Register an admin user
         """
         data = request.get_json()
         data['role'] = "admin"
@@ -52,6 +53,7 @@ class RegisterAdmin(Resource, UserCreationMixin):
 @auth_namespace.route('/create_user')
 class CreateUser(Resource, UserCreationMixin):
 
+    @auth_namespace.doc(description="Create a new user")
     @auth_namespace.expect(create_user_model)
     @jwt_required()
     @admin_required()
@@ -71,8 +73,12 @@ class CreateUser(Resource, UserCreationMixin):
 @auth_namespace.route('/login')
 class Login(Resource):
 
+    # @auth_namespace.doc(description="Login to get jwt token")
     @auth_namespace.expect(login_model)
     def post(self):
+        """
+        Login to get jwt token
+        """
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
@@ -99,9 +105,13 @@ class Login(Resource):
        
 @auth_namespace.route('/users')
 class GetUsers(Resource):
+    # @auth_namespace.doc(description="Get list of all users")
     @jwt_required()
     @auth_namespace.marshal_with(get_user_model)
     def get(self):
+        """
+        Get a list of all users
+        """
 
         users = User.query.all()
 
@@ -110,9 +120,13 @@ class GetUsers(Resource):
 
 @auth_namespace.route('/users/<int:pk>')
 class GetUpdateDeleteUser(Resource):
+    # @auth_namespace.doc(description="Get a user's details given their id")
     @jwt_required()
     @auth_namespace.marshal_with(get_user_model)
     def get(self,pk):
+        """
+        Get a user's details given their ID
+        """
 
         user = User.get_by_id(pk)
 
@@ -123,6 +137,9 @@ class GetUpdateDeleteUser(Resource):
     @auth_namespace.expect(get_user_model)
     @auth_namespace.marshal_with(get_user_model)
     def put(self, pk):
+        """
+        Update a user's details given their ID
+        """
 
         user = User.get_by_id(pk)
         data = auth_namespace.payload
@@ -144,6 +161,9 @@ class GetUpdateDeleteUser(Resource):
     @jwt_required()
     @admin_required()
     def delete(self, pk):
+        """
+        Delete a user's details given their ID
+        """
         user = User.get_by_id(pk)
 
         user.delete()
@@ -156,6 +176,9 @@ class Refresh(Resource):
 
     @jwt_required(refresh=True)
     def post(self):
+        """
+        Get refresh token
+        """
         username = get_jwt_identity()
 
         access_token = create_access_token(identity=username)

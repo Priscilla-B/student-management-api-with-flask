@@ -103,6 +103,9 @@ class GetUpdateDeleteCourse(Resource):
     @course_namespace.expect(course_model)
     @course_namespace.marshal_with(course_model)
     def put(self, course_id):
+        """
+        Update a course with given id
+        """
 
         course = Course.get_by_id(course_id)
         data = course_namespace.payload
@@ -118,6 +121,9 @@ class GetUpdateDeleteCourse(Resource):
     @jwt_required()
     @admin_required()
     def delete(self, course_id):
+        """
+        Delete a course with given id
+        """
         course = Course.get_by_id(course_id)
         course.delete()
 

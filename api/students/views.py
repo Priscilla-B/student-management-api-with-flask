@@ -79,6 +79,9 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
     @jwt_required()
     @student_namespace.marshal_with(student_model)
     def get(self, student_id):
+        """
+        Get details of a student with given id
+        """
         student = Student.get_by_id(student_id)
         
         student_response = marshal(self.get_student_response(student), student_model)
@@ -89,6 +92,9 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
     @student_namespace.expect(student_model)
     @student_namespace.marshal_with(student_model)
     def put(self, student_id):
+        """
+        Update a student with given id
+        """
 
         student = Student.get_by_id(student_id)
         user = student.user
@@ -115,6 +121,9 @@ class GetUpdateDeleteStudent(Resource, StudentResponseMixin):
     @jwt_required()
     @admin_required()
     def delete(self, student_id):
+        """
+        Update a student with given id
+        """
         student = Student.get_by_id(student_id)
         user = student.user
 
