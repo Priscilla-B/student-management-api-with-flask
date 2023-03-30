@@ -22,11 +22,16 @@ class DevConfig(Config):
     SQLALCHEMY_ECHO = True
     # to log queries generated
 
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3')
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    # keeping database in memory
 
 
 class TestConfig(Config):
-    pass
+    TESTING = True
+    DEBUG = True
+    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3')
+
 
 
 class ProdConfig(Config):
