@@ -99,7 +99,7 @@ class Login(Resource):
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
-            http_status = 201
+            http_status = 200
 
         return response, http_status
        
