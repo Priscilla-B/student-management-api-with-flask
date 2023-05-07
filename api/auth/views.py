@@ -55,8 +55,8 @@ class CreateUser(Resource, UserCreationMixin):
 
     @auth_namespace.doc(description="Create a new user")
     @auth_namespace.expect(create_user_model)
-    # @jwt_required()
-    # @admin_required()
+    @jwt_required()
+    @admin_required()
     def post(self):
         """
         Create a new user
