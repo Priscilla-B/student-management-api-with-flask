@@ -18,6 +18,8 @@ def admin_required():
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             claims = get_jwt()
+            if claims['role']=='admin':
+                return fn(*args, **kwargs)
             if get_user_role(claims['sub']) == RoleOptions.admin:
                 return fn(*args, **kwargs)
             else:

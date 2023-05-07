@@ -1,5 +1,8 @@
+from flask_jwt_extended import (create_access_token, create_refresh_token, 
+                                jwt_required, get_jwt_identity)
 import unittest
 from werkzeug.security import generate_password_hash
+
 
 from .. import create_app
 from ..config.config import config_dict
@@ -14,6 +17,7 @@ class UserTestCase(unittest.TestCase):
         self.app_contxt = self.app.app_context()
         self.app_contxt.push()
         self.client = self.app.test_client()
+        self.jwt_token = create_access_token(additional_claims={'role':'admin'}, identity=0)
         
         db.create_all()
 
@@ -38,7 +42,12 @@ class UserTestCase(unittest.TestCase):
             "role":"teacher"
         }
 
-        response = self.client.post('/auth/create_user', json=data)
+        headers = {
+            'Authorization': f'Bearer {self.jwt_token}'
+        }
+    
+        response = self.client.post('/auth/create_user', json=data, headers=headers)
+        print("***********************************************", response)
 
         user = User.query.filter_by(email=data["email"]).first()
         assert user.username == data["username"]
